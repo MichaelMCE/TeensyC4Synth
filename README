@@ -1,0 +1,795 @@
+
+This is a first revision of a Teensy 3.6+ USB driver and control library for the C4 Synth pedal by Source Audio.
+What this driver & library will allow one to do, is to fully control every aspect of your synth pedal. From activating a Preset to adjusting the various controls (variables) of that preset - in real time.
+This is the initial release and with that, a bare bones project from which to base your own project upon. There is but one example; but feature packed, demonstrating various possibilities - TeensyC4.ino.
+
+The library is split in to 3 components:
+USB communication functionality: c4_drv.cpp
+Pedal accessor functions: sa_c4.c
+Utility functions which wrap around the accessors: util.c
+
+There should never be a need to adjust anything within c4_drv.cpp nor sa_c4.c. It's expected that you will modify the utility functions to suit your requirements.
+A future release could support other Source Audio Pedals as I believe they're built upon a similar, if not the same, framework.
+Tested on Teensy 3.6 and 4.1 - Teensyduino 1.5.8 with Arduino 1.8.5 and with C4 firmware 1.20 and 1.21.
+
+
+Version 1.0:210523
+
+---
+
+
+Included in a demostration example: TeensyC4.ino.
+For reference, this is the output of said example with my pedal:
+
+---
+Source Audio C4 demo
+
+ - C4 Synth ready - 
+
+Hardware Config: 
+Firmware: 1.21
+Device model: 249
+Number of presets: 128
+Active preset: 3
+Preset/WYSIWYG: 0
+Hardware bypass mode: 0
+Midi channel (1 to 16): 2 
+Ccontrol input option: 0
+External loop safe mode: 0
+Power up state: 0
+Default input routing: 0
+Quick bank select: 0
+Neuro hub pedel input calibration Min: 0
+Neuro hub pedel input calibration Range: 1023
+Control input calibration Min: 410
+control input calibration Range: 240
+USB-Midi skip power check: 1
+
+
+
+
+
+Presets: 
+ 001: Turn Away Wah
+ 002: voice sound
+ 003: DBX 11
+ 004: Poly Pitch Swell
+ 005: Funk Dragon
+ 006: Flashlight Bass
+ 007: slow attack  si/sq filter
+ 008: thriller bass
+ 009: Bass in Baby
+ 010: Kevo's Dirty Synth 2.0
+ 011: my new preset
+ 012: Spacedock
+ 013: Saturday Cinema
+ 014: NC - Phaser
+ 015: Set Phasers To Kill 1
+ 016: Lazer Disco
+ 017: NIck Campbell Chords
+ 018: Future Nostalgia
+ 019: Don't Start Now
+ 020: Canned Heat
+ 021: Thriller
+ 022: Above & Beyond EXP
+ 023: Just Can't Get Enough
+ 024: Axel F
+ 025: Nuno Synth
+ 026: Mu-Tron Micro-Tron IV 10
+ 027: chaka chan
+ 028: --empty--
+ 029: das model bass
+ 030: kraftwerk model melody
+ 031: das model pulse
+ 032: das model alt melody
+ 033: the message
+ 034: Kavinsky triad
+ 035: kavinsky arp
+ 036: QM Chordially Invited 1
+ 037: QM Only On Paper 1
+ 038: QM Tom Sawyer 2
+ 039: QM Frustrations of Yesteryear 3a
+ 040: Spectrum - Split Octaves
+ 041: Spectrum - Gated Phaser
+ 042: Spectrum - Bandpass
+ 043: Spectrum - Dumpling
+ 044: Spectrum - Tron
+ 045: C minor Harmony and Sequencer
+ 046: Da Funk
+ 047: Meatball - Low Pass 1
+ 048: Moog Taurus (Winter NAMM 2019)
+ 049: Spaceship Overhead
+ 050: The Kraken Approaches
+ 051: External Loop Template
+ 052: EDM Swell
+ 053: Machine Octaves
+ 054: Machine Octaves 2
+ 055: Funk Dragon
+ 056: Right Meow
+ 057: Myriads Rise
+ 058: Initialize - Bass
+ 059: 808
+ 060: Synth Bass
+ 061: Lush Pad
+ 062: Sweep & Weep
+ 063: Simple Bit Crusher
+ 064: HC Moog 1
+ 065: Rhythmic Bass Octave Arpeggiator
+ 066: Microsynth
+ 067: OC-2 Synth
+ 068: 808 BASS
+ 069: Black Coffee
+ 070: All there is
+ 071: TeensyTest
+ 072: Kinda Jerry
+ 073: Moog Bass Synth - Jim 1
+ 074: 12 String-esque
+ 075: Take My Breath Away Bass
+ 076: EnvPhaser
+ 077: Tremvelope
+ 078: Clean Octave
+ 079: Whoow
+ 080: Ambient bass
+ 081: 24K MOOG
+ 082: Hysteria bass
+ 083: MF-101
+ 084: Deep Source - Hardcore
+ 085: Tower of Fuzz
+ 086: BladeRunnerBrass
+ 087: OctoFilterFunk
+ 088: 106 Jellybeans
+ 089: Qtron Fuzz
+ 090: Pony (modifed)
+ 091: Rotary Sim
+ 092: Deep Source - Dark Bubble
+ 093: 3-Stage Phaser
+ 094: Interstella Arcade
+ 095: A Stranger Sequence
+ 096: Blue Monday Low & Nasty
+ 097: Poly Pitch Swell
+ 098: ChordStabs
+ 099: Technologic
+ 100: Ensemble Brass & Reed
+ 101: Poly Pitch Swell 2
+ 102: Tron-Sitar
+ 103: BubblyTron
+ 104: C 7th Chords
+ 105: Saw Envelope
+ 106: Red Alert
+ 107: PHAT LEAD
+ 108: Clockwork Orange
+ 109: 808 Kick Bass
+ 110: Droid Pulsar
+ 111: Arrival
+ 112: Wind Sound
+ 113: SYNTH - Taurus
+ 114: HC Moog 1 Oct Up
+ 115: Chicago Warehouse
+ 116: AcidSeq
+ 117: Zelda's Dungeon
+ 118: Pro moog 3
+ 119: James & The Giant Fuzz
+ 120: house synth
+ 121: Bassballs Type 23
+ 122: Slime Phase
+ 123: Sean Murray - D&B Swell
+ 124: Shallow Impact II
+ 125: QM 3-OSC RAW filtered 3
+ 126: Chaves
+ 127: HP42 Pluck + Oct Sequence
+ 128: Lyle's OB Flutes
+
+
+Current control values of active preset: 
+input1_gain            72 
+input2_gain            183
+master_depth           254
+mod_source             17 
+bass                   154
+treble                 123
+mix                    123
+lo_retain              0  
+output                 42 
+output_balance         127
+voice1_level           34 
+voice1_pan             110
+voice1_detune          129
+voice1_tremolo         3  
+voice1_octave          6  
+voice1_semitone        11 
+voice1_mode            0  
+voice1_source          7  
+voice1_envelope        1  
+voice1_destination     0  
+voice1_tremolo_source  0  
+voice1_modulate        0  
+voice1_enable          1  
+voice2_level           182
+voice2_pan             99 
+voice2_detune          125
+voice2_tremolo         0  
+voice2_octave          5  
+voice2_semitone        4  
+voice2_mode            0  
+voice2_source          8  
+voice2_envelope        1  
+voice2_destination     0  
+voice2_tremolo_source  0  
+voice2_modulate        1  
+voice2_enable          1  
+voice3_level           32 
+voice3_pan             132
+voice3_detune          126
+voice3_tremolo         0  
+voice3_octave          5  
+voice3_semitone        20 
+voice3_mode            0  
+voice3_source          9  
+voice3_envelope        2  
+voice3_destination     1  
+voice3_tremolo_source  0  
+voice3_modulate        0  
+voice3_enable          1  
+voice4_level           94 
+voice4_pan             119
+voice4_detune          125
+voice4_tremolo         0  
+voice4_octave          5  
+voice4_semitone        11 
+voice4_mode            0  
+voice4_source          10 
+voice4_envelope        2  
+voice4_destination     1  
+voice4_tremolo_source  0  
+voice4_modulate        1  
+voice4_enable          1  
+distortion_drive       112
+distortion_mix         172
+distortion_output      20 
+distortion_type        10 
+distortion_enable      1  
+filter1_depth          139
+filter1_frequency      64 
+filter1_q              10 
+filter1_type           0  
+filter1_envelope       0  
+filter1_invert         0  
+filter1_enable         1  
+filter1_pitch_track    0  
+mix1_destination       0  
+filter2_depth          81 
+filter2_frequency      172
+filter2_q              158
+filter2_type           19 
+filter2_envelope       1  
+filter2_invert         0  
+filter2_enable         1  
+filter2_pitch_track    0  
+mix2_destination       0  
+envelope1_sensitivity  254
+envelope1_speed        155
+envelope1_gate         5  
+envelope1_type         2  
+envelope1_input        0  
+envelope2_sensitivity  228
+envelope2_speed        15 
+envelope2_gate         9  
+envelope2_type         5  
+envelope2_input        0  
+fm_sine1               6  
+fm_sine2               2  
+fm_sine1_input         1  
+fm_sine2_input         1  
+mono_pitch_filter1     127
+mono_pitch_filter2     127
+lfo_speed              0  
+lfo_env_to_speed       214
+lfo_env_to_depth       79 
+lfo_2_phase            92 
+lfo_2_multiply         3  
+lfo_shape              4  
+lfo_restart            1  
+lfo_beat_division      3  
+lfo_tempo              0  
+sequencer1_steps       14 
+sequencer1_value0      24 
+sequencer1_value1      24 
+sequencer1_value2      37 
+sequencer1_value3      36 
+sequencer1_value4      24 
+sequencer1_value5      34 
+sequencer1_value6      24 
+sequencer1_value7      34 
+sequencer1_value8      31 
+sequencer1_value9      24 
+sequencer1_value10     24 
+sequencer1_value11     32 
+sequencer1_value12     24 
+sequencer1_value13     24 
+sequencer1_value14     29 
+sequencer1_value15     28 
+sequencer2_steps       14 
+sequencer2_value0      24 
+sequencer2_value1      36 
+sequencer2_value2      24 
+sequencer2_value3      36 
+sequencer2_value4      48 
+sequencer2_value5      36 
+sequencer2_value6      24 
+sequencer2_value7      36 
+sequencer2_value8      36 
+sequencer2_value9      36 
+sequencer2_value10     24 
+sequencer2_value11     36 
+sequencer2_value12     24 
+sequencer2_value13     24 
+sequencer2_value14     36 
+sequencer2_value15     24 
+harmony_tuning         100
+harmony_key            0  
+harmony_mode           0  
+harmony_interval1      0  
+harmony_interval2      0  
+pitch_detect_input     0  
+pitch_detect_low_note  20 
+pitch_detect_high_note 21 
+knob1_assign           29 
+knob2_assign           7  
+filter2_correction     0  
+ext1_destination       34 
+ext1_source            1  
+ext1_min               0  
+ext1_max               254
+ext2_destination       35 
+ext2_source            1  
+ext2_min               0  
+ext2_max               127
+ext3_destination       36 
+ext3_source            1  
+ext3_min               127
+ext3_max               254
+ext_control_enable     0  
+lfo_midi_clock_sync    0  
+pitch_detect_mode      0  
+mix1_enable            1  
+mix2_enable            1  
+routing_option         0  
+on_off_status          1  
+
+
+Reading: Output volume level: 
+42
+
+
+Writing: Setting output level to 75: 
+output set to 75
+
+
+Reading: Output volume level: 
+75
+
+
+Selecting preset 1: 
+Preset 1 selected
+
+
+Active Preset: 
+1: Turn Away Wah                   
+
+
+Selecting next preset: 
+2: voice sound                     
+
+
+Active preset is now: 
+2: voice sound                     
+
+
+Preset 3 selected
+Printing binary data for preset 3: 
+48 B7 FE 11 9A 7B 7B 00 2A 7F 22 6E 81 03 5E 5C 18 B6 63 7D 00 25 60 1C 20 84 7E 00 A5 A4 11 5E 
+77 7D 00 5D A8 15 8B 40 0A 80 10 51 AC 9E B3 10 FE 9B 05 02 E4 0F 09 05 70 AC 14 1A 06 02 03 7F 
+7F 00 D6 4F 5C 03 74 00 00 00 00 0E 18 18 25 24 18 22 18 22 1F 18 18 20 18 18 1D 1C 0E 18 24 18 
+24 30 24 18 24 24 24 18 24 18 18 24 18 64 00 00 50 15 1D 07 10 62 00 FE 63 00 7F 64 7F FE 00 00 
+44 42 58 20 31 31 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 
+00 00 00 00 
+
+
+
+Printing .pre (XML) for preset 3: 
+
+<neuro_preset>
+	<info>
+		<product_id>249</product_id>
+		<preset_name>DBX 11</preset_name>
+	</info>
+	<input1_gain>72</input1_gain>
+	<input2_gain>183</input2_gain>
+	<master_depth>254</master_depth>
+	<mod_source>17</mod_source>
+	<bass>154</bass>
+	<treble>123</treble>
+	<mix>123</mix>
+	<lo_retain>0</lo_retain>
+	<output>42</output>
+	<output_balance>127</output_balance>
+	<voice1_source>7</voice1_source>
+	<voice1_envelope>1</voice1_envelope>
+	<voice1_octave>6</voice1_octave>
+	<voice1_semitone>11</voice1_semitone>
+	<voice1_mode>0</voice1_mode>
+	<voice1_level>34</voice1_level>
+	<voice1_pan>110</voice1_pan>
+	<voice1_tremolo>3</voice1_tremolo>
+	<voice1_tremolo_source>0</voice1_tremolo_source>
+	<voice1_detune>129</voice1_detune>
+	<voice1_modulate>1</voice1_modulate>
+	<voice1_destination>0</voice1_destination>
+	<voice1_enable>1</voice1_enable>
+	<voice2_source>8</voice2_source>
+	<voice2_envelope>1</voice2_envelope>
+	<voice2_octave>5</voice2_octave>
+	<voice2_semitone>4</voice2_semitone>
+	<voice2_mode>0</voice2_mode>
+	<voice2_level>182</voice2_level>
+	<voice2_pan>99</voice2_pan>
+	<voice2_tremolo>0</voice2_tremolo>
+	<voice2_tremolo_source>1</voice2_tremolo_source>
+	<voice2_detune>125</voice2_detune>
+	<voice2_modulate>1</voice2_modulate>
+	<voice2_destination>0</voice2_destination>
+	<voice2_enable>1</voice2_enable>
+	<voice3_source>9</voice3_source>
+	<voice3_envelope>2</voice3_envelope>
+	<voice3_octave>5</voice3_octave>
+	<voice3_semitone>20</voice3_semitone>
+	<voice3_mode>0</voice3_mode>
+	<voice3_level>32</voice3_level>
+	<voice3_pan>132</voice3_pan>
+	<voice3_tremolo>0</voice3_tremolo>
+	<voice3_tremolo_source>0</voice3_tremolo_source>
+	<voice3_detune>126</voice3_detune>
+	<voice3_modulate>0</voice3_modulate>
+	<voice3_destination>1</voice3_destination>
+	<voice3_enable>1</voice3_enable>
+	<voice4_source>10</voice4_source>
+	<voice4_envelope>2</voice4_envelope>
+	<voice4_octave>5</voice4_octave>
+	<voice4_semitone>11</voice4_semitone>
+	<voice4_mode>0</voice4_mode>
+	<voice4_level>94</voice4_level>
+	<voice4_pan>119</voice4_pan>
+	<voice4_tremolo>0</voice4_tremolo>
+	<voice4_tremolo_source>1</voice4_tremolo_source>
+	<voice4_detune>125</voice4_detune>
+	<voice4_modulate>0</voice4_modulate>
+	<voice4_destination>1</voice4_destination>
+	<voice4_enable>1</voice4_enable>
+	<filter1_depth>139</filter1_depth>
+	<filter1_frequency>64</filter1_frequency>
+	<filter1_q>10</filter1_q>
+	<filter1_type>0</filter1_type>
+	<filter1_invert>0</filter1_invert>
+	<filter1_envelope>0</filter1_envelope>
+	<filter1_pitch_track>0</filter1_pitch_track>
+	<filter1_enable>1</filter1_enable>
+	<mix1_destination>0</mix1_destination>
+	<mix1_enable>1</mix1_enable>
+	<filter2_depth>81</filter2_depth>
+	<filter2_frequency>172</filter2_frequency>
+	<filter2_q>158</filter2_q>
+	<filter2_type>19</filter2_type>
+	<filter2_invert>0</filter2_invert>
+	<filter2_envelope>1</filter2_envelope>
+	<filter2_pitch_track>0</filter2_pitch_track>
+	<filter2_enable>1</filter2_enable>
+	<mix2_destination>0</mix2_destination>
+	<mix2_enable>1</mix2_enable>
+	<envelope1_speed>155</envelope1_speed>
+	<envelope1_sensitivity>254</envelope1_sensitivity>
+	<envelope1_gate>5</envelope1_gate>
+	<envelope1_type>2</envelope1_type>
+	<envelope1_input>0</envelope1_input>
+	<envelope2_speed>15</envelope2_speed>
+	<envelope2_sensitivity>228</envelope2_sensitivity>
+	<envelope2_gate>9</envelope2_gate>
+	<envelope2_type>5</envelope2_type>
+	<envelope2_input>0</envelope2_input>
+	<distortion_drive>112</distortion_drive>
+	<distortion_mix>172</distortion_mix>
+	<distortion_output>20</distortion_output>
+	<distortion_type>10</distortion_type>
+	<distortion_enable>1</distortion_enable>
+	<lfo_speed>0</lfo_speed>
+	<lfo_env_to_speed>214</lfo_env_to_speed>
+	<lfo_env_to_depth>79</lfo_env_to_depth>
+	<lfo_2_phase>92</lfo_2_phase>
+	<lfo_shape>4</lfo_shape>
+	<lfo_restart>1</lfo_restart>
+	<lfo_2_multiply>3</lfo_2_multiply>
+	<lfo_beat_division>3</lfo_beat_division>
+	<fm_sine1>6</fm_sine1>
+	<fm_sine2>2</fm_sine2>
+	<fm_sine1_input>1</fm_sine1_input>
+	<fm_sine2_input>1</fm_sine2_input>
+	<mono_pitch_filter1>127</mono_pitch_filter1>
+	<mono_pitch_filter2>127</mono_pitch_filter2>
+	<lfo_tempo>0</lfo_tempo>
+	<lfo_midi_clock_sync>0</lfo_midi_clock_sync>
+	<sequencer1_steps>16</sequencer1_steps>
+	<sequencer1_value0>24</sequencer1_value0>
+	<sequencer1_value1>24</sequencer1_value1>
+	<sequencer1_value2>37</sequencer1_value2>
+	<sequencer1_value3>36</sequencer1_value3>
+	<sequencer1_value4>24</sequencer1_value4>
+	<sequencer1_value5>34</sequencer1_value5>
+	<sequencer1_value6>24</sequencer1_value6>
+	<sequencer1_value7>34</sequencer1_value7>
+	<sequencer1_value8>31</sequencer1_value8>
+	<sequencer1_value9>24</sequencer1_value9>
+	<sequencer1_value10>24</sequencer1_value10>
+	<sequencer1_value11>32</sequencer1_value11>
+	<sequencer1_value12>24</sequencer1_value12>
+	<sequencer1_value13>24</sequencer1_value13>
+	<sequencer1_value14>29</sequencer1_value14>
+	<sequencer1_value15>28</sequencer1_value15>
+	<sequencer2_steps>16</sequencer2_steps>
+	<sequencer2_value0>24</sequencer2_value0>
+	<sequencer2_value1>36</sequencer2_value1>
+	<sequencer2_value2>24</sequencer2_value2>
+	<sequencer2_value3>36</sequencer2_value3>
+	<sequencer2_value4>48</sequencer2_value4>
+	<sequencer2_value5>36</sequencer2_value5>
+	<sequencer2_value6>24</sequencer2_value6>
+	<sequencer2_value7>36</sequencer2_value7>
+	<sequencer2_value8>36</sequencer2_value8>
+	<sequencer2_value9>36</sequencer2_value9>
+	<sequencer2_value10>24</sequencer2_value10>
+	<sequencer2_value11>36</sequencer2_value11>
+	<sequencer2_value12>24</sequencer2_value12>
+	<sequencer2_value13>24</sequencer2_value13>
+	<sequencer2_value14>36</sequencer2_value14>
+	<sequencer2_value15>24</sequencer2_value15>
+	<pitch_detect_input>0</pitch_detect_input>
+	<pitch_detect_low_note>20</pitch_detect_low_note>
+	<pitch_detect_high_note>21</pitch_detect_high_note>
+	<pitch_detect_mode>0</pitch_detect_mode>
+	<harmony_key>0</harmony_key>
+	<harmony_tuning>100</harmony_tuning>
+	<harmony_mode>0</harmony_mode>
+	<harmony_interval1>0</harmony_interval1>
+	<harmony_interval2>0</harmony_interval2>
+	<knob1_assign>29</knob1_assign>
+	<knob2_assign>7</knob2_assign>
+	<ext1_source>1</ext1_source>
+	<ext1_destination>34</ext1_destination>
+	<ext1_min>0</ext1_min>
+	<ext1_max>254</ext1_max>
+	<ext2_source>1</ext2_source>
+	<ext2_destination>35</ext2_destination>
+	<ext2_min>0</ext2_min>
+	<ext2_max>127</ext2_max>
+	<ext3_source>1</ext3_source>
+	<ext3_destination>36</ext3_destination>
+	<ext3_min>127</ext3_min>
+	<ext3_max>254</ext3_max>
+	<ext_control_enable>0</ext_control_enable>
+	<routing_option>0</routing_option>
+	<on_off_status>1</on_off_status>
+	<filter2_correction>0</filter2_correction>
+</neuro_preset>
+
+
+
+Printing preset values for preset 3: 
+Name: DBX 11                          
+ Levels:
+input1_gain    72
+input2_gain    183
+master_depth   254
+mod_source     17
+bass           154
+treble         123
+mix            123
+lo_retain      0
+output         42
+output_balance 127
+
+ Filter: 1
+depth           139
+frequency       64
+q               10
+type            0
+envelope        0
+invert	        0
+enable	        1
+pitch_track     0
+mix_destination 0
+mix_enable      1
+
+ Filter: 2
+depth           81
+frequency       172
+q               158
+type            19
+envelope        1
+invert	        0
+enable	        1
+pitch_track     0
+mix_destination 0
+mix_enable      1
+
+ Filter: 3
+depth           254
+frequency       155
+q               5
+type            2
+envelope        0
+invert	        0
+enable	        0
+pitch_track     0
+mix_destination 1
+mix_enable      14
+
+ Filter: 4
+depth           15
+frequency       9
+q               5
+type            16
+envelope        1
+invert	        1
+enable	        0
+pitch_track     0
+mix_destination 3
+mix_enable      10
+
+ Envelope: 1
+sensitivity    254
+speed          155
+gate           5
+type;          2
+input          0
+
+ Envelope: 2
+sensitivity    228
+speed          15
+gate           9
+type;          5
+input          0
+
+ Distortion:
+drive             112
+mix               172
+output            20
+type              10
+enable            1
+
+fm_sine1           6
+fm_sine2           2
+fm_sine1_input     1
+fm_sine2_input     1
+mono_pitch_filter1 127
+mono_pitch_filter2 127
+
+ LFO:
+speed             0
+env_to_speed      214
+env_to_depth      79
+to_phase          92
+to_multiply       3
+shape             4
+restart           1
+beat_division     3
+tempo             0
+
+ Sequencer: 1
+steps          16
+value 1   	24
+value 2   	24
+value 3   	37
+value 4   	36
+value 5   	24
+value 6   	34
+value 7   	24
+value 8   	34
+value 9   	31
+value 10   	24
+value 11   	24
+value 12   	32
+value 13   	24
+value 14   	24
+value 15   	29
+value 16   	28
+
+ Sequencer: 2
+steps          16
+value 1   	24
+value 2   	36
+value 3   	24
+value 4   	36
+value 5   	48
+value 6   	36
+value 7   	24
+value 8   	36
+value 9   	36
+value 10   	36
+value 11   	24
+value 12   	36
+value 13   	24
+value 14   	24
+value 15   	36
+value 16   	24
+
+ Harmony:
+tuning         100
+key            0
+interval1      0
+mode           0
+interval2      0
+
+ Pitch detect:
+input          0
+mode           0
+low_note       20
+high_note      21
+
+ General:
+knob1_assign        29
+knob2_assign        7
+routing_option      0
+filter2_correction  0
+on_off_status       1
+ext_control_enable  0
+lfo_midi_clock_sync 0
+
+ Ext: 1
+destination 34
+source      1
+min         0
+max         254
+
+ Ext: 2
+destination 35
+source      1
+min         0
+max         127
+
+ Ext: 3
+destination 36
+source      1
+min         127
+max         254
+
+
+
+Dumping internal EEPROM: 
+00 00 01 00 00 00 00 00 00 00 FF 03 9A 01 F0 00 
+01 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+00 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FA FF FF 
+FF FF FF FF F9 FF FB FE FD FC FF FF FF FF FF FF 
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF F8 
+
+
+
+Searching for duplicates of preset 71..
+71 <> 70: identical
+Search complete
+
+
+Searching for any duplicates..
+3 <> 9: identical
+9 <> 3: identical
+70 <> 71: identical
+71 <> 70: identical
+Duplicates found
