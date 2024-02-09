@@ -27,9 +27,10 @@ void util_printPresetStruct (as_preset_t *preset)
 	printf("output_balance %i\r\n", (int)preset->level.output_balance);
 	printf("\r\n");
 	
-	for (int i = 0; i < AS_VOICE_TOTAL; i++){
+	
+	for (int i = 0; i < AS_FILTER_TOTAL; i++){
 		printf(" Filter: %i\r\n", i+1);
-		printf("depth           %i\r\n", (int)preset->filter[i].depth); // GCC BUG, ignore: "warning: iteration 2 invokes undefined behavior" GCC BUG
+		printf("depth           %i\r\n", (int)preset->filter[i].depth);
 		printf("frequency       %i\r\n", (int)preset->filter[i].frequency);
 		printf("q               %i\r\n", (int)preset->filter[i].q);
 		printf("type            %i\r\n", (int)preset->filter[i].type);
