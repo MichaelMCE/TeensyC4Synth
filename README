@@ -620,30 +620,6 @@ pitch_track     0
 mix_destination 0
 mix_enable      1
 
- Filter: 3
-depth           254
-frequency       155
-q               5
-type            2
-envelope        0
-invert	        0
-enable	        0
-pitch_track     0
-mix_destination 1
-mix_enable      14
-
- Filter: 4
-depth           15
-frequency       9
-q               5
-type            16
-envelope        1
-invert	        1
-enable	        0
-pitch_track     0
-mix_destination 3
-mix_enable      10
-
  Envelope: 1
 sensitivity    254
 speed          155
