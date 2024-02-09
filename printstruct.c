@@ -26,8 +26,24 @@ void util_printPresetStruct (as_preset_t *preset)
 	printf("output         %i\r\n", (int)preset->level.output);
 	printf("output_balance %i\r\n", (int)preset->level.output_balance);
 	printf("\r\n");
-	
-	
+
+	for (int i = 0; i < AS_VOICE_TOTAL; i++){
+		printf(" Voice: %i\r\n", i+1);
+		printf("level           %i\r\n", (int)preset->voice[i].level);
+		printf("pan             %i\r\n", (int)preset->voice[i].pan);
+		printf("detune          %i\r\n", (int)preset->voice[i].detune);
+		printf("tremolo         %i\r\n", (int)preset->voice[i].tremolo);
+		printf("octave          %i\r\n", (int)preset->voice[i].octave);
+		printf("semitone        %i\r\n", (int)preset->voice[i].semitone);
+		printf("mode            %i\r\n", (int)preset->voice[i].mode);
+		printf("source          %i\r\n", (int)preset->voice[i].source);
+		printf("envelope        %i\r\n", (int)preset->voice[i].envelope);
+		printf("destination     %i\r\n", (int)preset->voice[i].destination);
+		printf("tremolo_source  %i\r\n", (int)preset->voice[i].tremolo_source);
+		printf("modulate        %i\r\n", (int)preset->voice[i].modulate);
+		printf("enable          %i\r\n", (int)preset->voice[i].enable);
+	}
+
 	for (int i = 0; i < AS_FILTER_TOTAL; i++){
 		printf(" Filter: %i\r\n", i+1);
 		printf("depth           %i\r\n", (int)preset->filter[i].depth);
