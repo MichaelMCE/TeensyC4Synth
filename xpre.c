@@ -196,7 +196,7 @@ char *xpre_getStr (xpre_t *xpre, const char *field)
 		return NULL;
 	}
 
-	snprintf(value, (end-location), "%s", location);
+	snprintf(value, (end-location)+1, "%s", location);
 	value[AS_PRESET_NAME_LENGTH] = 0;
 	return strdup(value);
 }
